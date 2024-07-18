@@ -2,6 +2,8 @@
 # define variable 'setups': simulation setup set
 # define variable 'optimiser': properties for the optimiser
 
+import copy, pickle
+
 # import just for IDE convenience
 import propti as pr
 
@@ -34,7 +36,7 @@ for iso in ['Alu', 'ISO']:
     r = pr.Relation()
     r.model.file_name = "{}_hrr.csv".format(CHID)
     r.model.label_x = 'Time'
-    r.model.label_y = 'MLR_TOTAL'
+    r.model.label_y = 'MLR_TOLUENE'
     r.model.header_line = 1
     r.experiment.file_name = "Data.csv"
     r.experiment.label_x = '# Time_{}_75'.format(iso)
@@ -64,3 +66,10 @@ for iso in ['Alu', 'ISO']:
 
 # use default values for optimiser
 optimiser = pr.OptimiserProperties()
+
+res = pr.run_optimisation(ops, setups, optimiser)
+
+ver = pr.Version(setups[0]).ver_propti
+out_file = open('propti.pickle.finished', 'wb')
+pickle.dump((ver, setups, ops, optimiser), out_file)
+out_file.close()

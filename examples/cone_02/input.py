@@ -2,6 +2,8 @@
 # define variable 'setups': simulation setup set
 # define variable 'optimiser': properties for the optimiser
 
+import pickle
+
 # import just for IDE convenience
 import propti as pr
 
@@ -60,3 +62,10 @@ setups.append(s)
 # use default values for optimiser
 optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    repetitions=10)
+
+res = pr.run_optimisation(ops, setups, optimiser)
+
+ver = pr.Version(setups[0]).ver_propti
+out_file = open('propti.pickle.finished', 'wb')
+pickle.dump((ver, setups, ops, optimiser), out_file)
+out_file.close()

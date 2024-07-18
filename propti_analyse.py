@@ -170,8 +170,8 @@ else:
 for i in range(0, len(setups)):
     setups[i].model_template = os.path.join(cmdl_args.root_dir,setups[i].model_template)
     for r in setups[i].relations:
-        #r.model.file_name = os.path.join(cmdl_args.root_dir,r.model.file_name)
-        r.experiment.file_name = os.path.join(cmdl_args.root_dir,r.experiment.file_name)
+        if r.experiment is not None:
+            r.experiment.file_name = os.path.join(cmdl_args.root_dir,r.experiment.file_name)
 #
 #######################################################
 

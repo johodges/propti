@@ -116,18 +116,19 @@ def plot_template(exp_data, sim_data, legend_labels=None,
     colormap = plt.get_cmap('viridis')
     #ax.set_color_cycle([colormap(k) for k in np.linspace(0, 1, n_colors)])
     #ax.set_prop_cycle('viridis', plt.cm.spectral(np.linspace(0, 1, 30)))
-
-    for i in range(len(exp_data)):
+    max_len = max(len(exp_data), len(sim_data))
+    for i in range(0, max_len):
         # Create multiple plots
-        ax.plot(exp_data[i][0],
-                exp_data[i][1],
-                linestyle='-.',
-                color=colormap(i))
-
-        ax.plot(sim_data[i][0],
-                sim_data[i][1],
-                linestyle='-',
-                color=colormap(i))
+        if i <= len(exp_data)-1:
+            ax.plot(exp_data[i][0],
+                    exp_data[i][1],
+                    linestyle='-.',
+                    color=colormap(i))
+        if i <= len(sim_data)-1:
+            ax.plot(sim_data[i][0],
+                    sim_data[i][1],
+                    linestyle='-',
+                    color=colormap(i))
 
     ax.legend(legend_labels)
 
@@ -398,20 +399,23 @@ def plot_best_sim_exp(setup_plot, pickle_object):
                                      usecols=[r.model.label_x,
                                               r.model.label_y])
 
-        experimental_data_raw = pd.read_csv(r.experiment.file_name,
-                                            header=r.experiment.header_line,
-                                            usecols=[r.experiment.label_x,
-                                                     r.experiment.label_y])
-
         md_interm = [(model_data_raw[r.model.label_x]*r.model.xfactor+r.model.xoffset).tolist(),
                      (model_data_raw[r.model.label_y]*r.model.yfactor+r.model.yoffset).tolist()]
-
-        ed_interm = [(experimental_data_raw[r.experiment.label_x]*r.experiment.xfactor+r.experiment.xoffset).tolist(),
-                     (experimental_data_raw[r.experiment.label_y]*r.experiment.yfactor+r.experiment.yoffset).tolist()]
         model_data.append(md_interm)
-        experimental_data.append(ed_interm)
-
+        
+        if r.experiment is not None:
+            experimental_data_raw = pd.read_csv(r.experiment.file_name,
+                                                header=r.experiment.header_line,
+                                                usecols=[r.experiment.label_x,
+                                                         r.experiment.label_y])
+    
+            ed_interm = [(experimental_data_raw[r.experiment.label_x]*r.experiment.xfactor+r.experiment.xoffset).tolist(),
+                         (experimental_data_raw[r.experiment.label_y]*r.experiment.yfactor+r.experiment.yoffset).tolist()]
+            
+            experimental_data.append(ed_interm)
+            
     leg_lab = ['experiment', 'simulation']
+    
     plot_template(experimental_data,
                   model_data,
                   legend_labels=leg_lab,
