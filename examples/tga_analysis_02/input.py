@@ -8,6 +8,7 @@
 # need to be created.
 
 import numpy as np
+import os, pickle
 
 # Import just for IDE convenience.
 import propti as pr
@@ -116,6 +117,7 @@ for i in range(len(HeatingRatesTGA)):
 ssetups = []
 for i in range(len(HeatingRatesTGA)):
     sn = "{}_{}K_tga".format(CHID, str(HeatingRatesTGA[i]))
+    if os.path.exists(sn) is False: os.mkdir(sn)
     s = pr.SimulationSetup(name=sn,
                            work_dir=sn,
                            model_template=template_file,
@@ -149,3 +151,10 @@ optimiser = pr.OptimiserProperties(algorithm='sceua',
 
 
 print('** input file processed')
+
+res = pr.run_optimisation(ops, setups, optimiser)
+
+ver = pr.Version(setups[0]).ver_propti
+out_file = open('propti.pickle.finished', 'wb')
+pickle.dump((ver, setups, ops, optimiser), out_file)
+out_file.close()

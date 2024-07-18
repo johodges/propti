@@ -4,6 +4,7 @@
 
 # import just for IDE convenience
 import propti as pr
+import os, pickle
 
 # fix the chid
 CHID = 'TGA_analysis_01'
@@ -47,8 +48,11 @@ r.fitness_method=pr.FitnessMethodRMSE(n_points=100)
 
 # create simulation setup object
 template_file = "tga_analysis_01.fds"
+work_dir = 'tga_analysis_run_01'
+if os.path.exists(work_dir) is False: os.mkdir(work_dir)
+
 s = pr.SimulationSetup(name='tga_analysis_01',
-                       work_dir='tga_analysis_run_01',
+                       work_dir=work_dir,
                        model_template=template_file,
                        model_parameter=mps0,
                        model_executable='fds',
@@ -60,3 +64,9 @@ setups.append(s)
 # use default values for optimiser
 optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    repetitions=10)
+res = pr.run_optimisation(ops, setups, optimiser)
+
+ver = pr.Version(setups[0]).ver_propti
+out_file = open('propti.pickle.finished', 'wb')
+pickle.dump((ver, setups, ops, optimiser), out_file)
+out_file.close()
