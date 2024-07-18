@@ -759,6 +759,7 @@ class SimulationSetup:
 
         self.name = name
         self.work_dir = work_dir
+        if os.path.exists(work_dir) is False: os.mkdir(work_dir)
         self.model_template = model_template
         self.model_input_file = model_input_file
         self.model_parameter = model_parameter
