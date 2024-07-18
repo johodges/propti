@@ -101,19 +101,24 @@ ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
 
-def check_directory(dir_list):
+def check_directory(dir_list, basedir=cmdl_args.root_dir):
     """
     Take a list of directory names (strings) and attach them to the root
     path. Check if this path exists, if not create it.
     :param dir_list: List containing the directory names, as string.
     :return: New file path, based on files root and user input.
     """
-
+    
     # Set up new path.
-    new_dir = os.path.join(cmdl_args.root_dir)
-    for directory in dir_list:
-        new_dir = os.path.join(new_dir, directory)
-
+    if basedir is not None:
+        dir_list.insert(0, basedir)
+        
+    for i, directory in enumerate(dir_list):
+        if i == 0:
+            new_dir = os.path.join(directory)
+        else:
+            new_dir = os.path.join(new_dir, directory)
+            
     # Check if the new path exists, otherwise create it.
     if not os.path.exists(new_dir):
         os.makedirs(new_dir)
@@ -162,6 +167,11 @@ elif p_length == 4:
 else:
     print('The init-file is incompatible '
           'with this version of propti_analyse.')
+for i in range(0, len(setups)):
+    setups[i].model_template = os.path.join(cmdl_args.root_dir,setups[i].model_template)
+    for r in setups[i].relations:
+        #r.model.file_name = os.path.join(cmdl_args.root_dir,r.model.file_name)
+        r.experiment.file_name = os.path.join(cmdl_args.root_dir,r.experiment.file_name)
 #
 #######################################################
 
@@ -215,32 +225,6 @@ if cmdl_args.inspect_init:
     print("* Optimiser Settings:")
     print(optimiser)
 
-    print("")
-    print("")
-
-
-######################################
-# Run Simulation of Best Parameter Set
-if cmdl_args.run_best:
-    """
-    Extracts the best parameter set from the data base and writes it into a 
-    copy of the simulation input template. Afterwards, the simulation is 
-    executed. 
-    """
-
-    db_file_name = os.path.join(cmdl_args.root_dir,
-                                '{}.{}'.format(optimiser.db_name,
-                                               optimiser.db_type))
-    
-    
-    # Check if a directory for the result files exists. If not, create it.
-    results_dir = check_directory([p1, 'RunBestPara'])
-
-
-    print("")
-    print("* Run simulation(s) of best parameter set")
-    print("----------------------")
-    pr.run_best_para(setups, ops, optimiser, pickle_file)
     print("")
     print("")
 
@@ -380,7 +364,7 @@ if cmdl_args.create_best_input:
     css = 0
     for simsetup in sim_setup_names:
         # Create new directories, based on simulation setup names.
-        check_directory([results_dir, simsetup])
+        check_directory([results_dir, simsetup], basedir=None)
 
         # Load template.
         template_file_path = setups[css].model_template
@@ -413,6 +397,32 @@ if cmdl_args.create_best_input:
     print("Simulation input file, based on best parameter set, was written.")
 
     print("* Task finished.")
+    print("")
+    print("")
+
+
+######################################
+# Run Simulation of Best Parameter Set
+if cmdl_args.run_best:
+    """
+    Extracts the best parameter set from the data base and writes it into a 
+    copy of the simulation input template. Afterwards, the simulation is 
+    executed. 
+    """
+
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+    
+    
+    # Check if a directory for the result files exists. If not, create it.
+    results_dir = check_directory([p1, 'RunBestPara'])
+
+
+    print("")
+    print("* Run simulation(s) of best parameter set")
+    print("----------------------")
+    pr.run_best_para(setups, ops, optimiser, pickle_file)
     print("")
     print("")
 
@@ -1006,7 +1016,6 @@ if cmdl_args.create_case_input:
 
     print("Number of data sets: {}".format(len(extr_data['repetition'])))
     for i in range(len(extr_data['repetition'])):
-
         # Read case template.
         temp_raw = pbf.read_template(template_file_path)
 
@@ -1052,7 +1061,6 @@ if cmdl_args.create_case_input:
         new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
         bip = os.path.join(case_dir, new_dir_rep, new_case_name)
         pbf.write_input_file(temp_raw, bip)
-        print(len(temp_raw))
 
     print("")
     print("Functionality test completed.")

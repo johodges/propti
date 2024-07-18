@@ -82,6 +82,7 @@ def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
         log_file.close()
         print('  Done.')
         print('-----')
+        s.best_dir = work_dir
 
     print('* Best parameter simulations finished.')
 
@@ -135,9 +136,10 @@ def plot_template(exp_data, sim_data, legend_labels=None,
     # Create plot title from file name.
     plt.title(plot_labels[2])
     plt.grid()
-
+    print(file_name + '.' + file_type)
     plt.savefig(file_name + '.' + file_type,
                 dpi=dpi_value)
+    plt.tight_layout()
     plt.close(multi_plot)
     print('Plot saved.')
     print('')
@@ -369,6 +371,7 @@ def plot_best_sim_exp(setup_plot, pickle_object):
 
     root_dir = os.path.dirname(os.path.abspath(pickle_object))
     cdir = os.path.join(root_dir, setup_plot.best_dir)
+    print(cdir)
 
     # Check if best parameter simulation directories exist
     if not os.path.exists(cdir):
@@ -412,7 +415,8 @@ def plot_best_sim_exp(setup_plot, pickle_object):
     plot_template(experimental_data,
                   model_data,
                   legend_labels=leg_lab,
-                  n_colors=lr)
+                  n_colors=lr,
+                  file_name=os.path.join(root_dir,'bestfit'))
 
 
 # Create lists of column headers and labels.
